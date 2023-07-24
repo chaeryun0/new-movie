@@ -1,0 +1,55 @@
+.movieCardWrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  color: #ffffff;
+}
+
+.movieCard {
+  display: flex;
+  justify-content: space-between;
+
+  width: 48%;
+  height: 140px;
+  padding: 25px;
+  margin-bottom: 20px;
+  background-color: #2e303d;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.cardImg {
+  width: 120px;
+  height: auto;
+  border-radius: 4px;
+}
+
+.cardInfo {
+  width: 150px;
+  margin-left: 20px;
+}
+
+.title {
+  margin-bottom: 15px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.overview {
+  font-size: 13px;
+  color: #999;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 20px;
+  max-height: 3em;
+}
+
+@media (max-width: 600px) {
+  .movieCard {
+    width: 100%;
+  }
+}
