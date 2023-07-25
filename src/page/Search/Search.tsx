@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
-import { axiosInstance, movieCategory } from '../../api/movie'
-import MovieList from '../../components/MovieList/MovieList'
-import styles from './Search.module.css'
-import { Movie } from '../../types/movie'
+import { useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import MovieList from '../../components/MovieList/MovieList';
+import { AxiosRequestConfig } from 'axios';
+import { axiosInstance, getEndpoint } from '../../api/movie';
+import { Movie } from '../../types/movie';
+import styles from './Search.module.css';
 
 interface MovieAPIResponse {
   results: Movie[];
@@ -11,37 +13,42 @@ interface MovieAPIResponse {
 }
 
 const Search = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [showMovie, setShowMovie] = useState<Movie[]>([])
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchResult, setSearchResult] = useState<Movie[]>([]);
 
-  const fetchMovieData = async () => {
-    setIsLoading(true);
-
-    try {
-        const response = await axiosInstance.get<MovieAPIResponse>(movieCategory);
-        const data = response.data;
-        console.log('data :', data);
-
-        setShowMovie(data.results);
-        } catch (error) {
-        console.error('fetchMovieData Error :', error);
-      }
-      setIsLoading(false);
-    };
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const query = searchParams.get('q');
+  const MIN_AVERAGE = 7;
 
   useEffect(() => {
-    fetchMovieData();
-  }, []);
-  
+    const fetchMovieData = async (searchQuery: string) => {
+      try {
+        setIsLoading(true);
+        const url = getEndpoint(location.pathname);
+        const params: AxiosRequestConfig = url === '/search/movie' ? { params: { query: searchQuery } } : {};
+
+        const response = await axiosInstance.get<MovieAPIResponse>(url, params);
+        const filteredData = response.data.results.filter((movie) => movie.vote_average > MIN_AVERAGE);
+        const sortedData = filteredData.sort((a, b) => b.vote_average - a.vote_average);
+        setSearchResult(sortedData);
+      } catch (error) {
+        console.error('fetchMovieData Error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (query) {
+      fetchMovieData(query);
+    }
+  }, [query, location.pathname]);
 
   return (
     <section className={styles.searchResults}>
-      <MovieList 
-        isLoading={isLoading}
-        movieData={showMovie}
-        />
+      <MovieList isLoading={isLoading} movieData={searchResult} />
     </section>
-  )
-}
+  );
+};
 
-export default Search
+export default Search;

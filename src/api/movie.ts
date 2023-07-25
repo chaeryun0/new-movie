@@ -12,4 +12,6 @@ export const axiosInstance = axios.create({
   },
 });
 
-export const movieCategory =  '/movie/popular'
+export const getEndpoint = (pathname: string): string => {
+  return pathname.startsWith('/search') ? '/search/movie' : '/movie/popular';
+};
