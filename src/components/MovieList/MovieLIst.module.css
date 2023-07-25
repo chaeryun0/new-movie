@@ -1,5 +1,5 @@
-.listContainer {
-  padding: 40px 35px;
-  flex-grow: 1;
-  overflow-y: auto;
+.movieCardList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
