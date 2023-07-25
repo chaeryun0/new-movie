@@ -1,18 +1,15 @@
-import SearchInput from './components/SearchInput/SearchInput'
-import Search from './page/Search/Search'
-import Nav from './components/Nav/Nav'
-import styles from './App.module.css'
+import { Route, Routes } from 'react-router-dom';
+import { Layout } from './page/Layout/Layout';
+import Search from './page/Search/Search';
 
 const App = () => {
   return (
-    <div className={styles.appWrapper}>
-      <main className={styles.app}>
-        <SearchInput />
-        <Search />
-        <Nav />
-      </main>
-    </div>
-  )
+    <Routes>
+      <Route path='/' element={<Layout />}>
+        <Route path='/search' element={<Search />} />
+      </Route>
+    </Routes>
+  );
 }
 
 export default App
