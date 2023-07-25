@@ -1,23 +1,22 @@
 import MovieCard from '../MovieCard/MovieCard'
 import { Movie } from '../../types/movie'
-import { NO_FAVORITE, NO_RESULTS } from '../../assets/texts'
+import { NO_MOVIE } from '../../assets/texts'
 import styles from './MovieLIst.module.css'
 
 interface Props {
   movieData?: Movie[]
+  isLoading?: boolean
 }
 
-const MovieList = ({ movieData }: Props) => {
+const MovieList = ({ movieData, isLoading }: Props) => {
   return (
     <ul className={styles.movieCardList}>
-      {movieData?.length ? 
-        movieData.map((movie) =>
+      {!isLoading && movieData?.length ?
+        (movieData.map((movie) =>
           <MovieCard key={movie.id} movie={movie} />
-        ) : (
-        <p className={styles.locationPathText}>
-          {location.pathname === '/' ? NO_RESULTS : NO_FAVORITE}
-        </p>
-      )}
+        )) : (
+          <p className={styles.noMovie}>{NO_MOVIE}</p>
+        )}
     </ul>
   )
 }

@@ -19,7 +19,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
       />
       <div className={styles.movieInfo}>
         <h3 className={styles.title}>{movie.title}</h3>
-        <p className={styles.average}>{`★ ${movie.vote_average}`}</p>
+        <p className={styles.average}>{`★ ${movie.vote_average.toFixed(1)}`}</p>
         <p className={styles.overview}>{movie.overview}</p>
       </div>
     </li>
