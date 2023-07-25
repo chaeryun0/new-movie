@@ -1,0 +1,12 @@
+.searchResults {
+  padding: 20px 35px;
+  flex-grow: 1;
+
+  overflow-y: auto;
+  -ms-overflow-style: none; /* IE */
+  scrollbar-width: none;   /* Firefox */
+}
+
+.searchResults::-webkit-scrollbar {
+  display: none;
+}

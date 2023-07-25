@@ -4,10 +4,5 @@ export interface Movie {
   overview: string,
   poster_path: string,
   backdrop_path: string,
-}
-
-export interface MovieAPIRes {
-  Search: Movie[],
-  total_pages: string,
-  total_results: string
+  vote_average: number,
 }
