@@ -1,0 +1,15 @@
+.favoriteList {
+  padding: 20px 35px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.favoriteList::-webkit-scrollbar {
+  display: none;
+}
+
+.favorites {
+  display: flex;
+  flex-wrap: wrap; 
+  justify-content: space-between;
+}
