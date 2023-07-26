@@ -29,8 +29,9 @@ const Search = () => {
         const params: AxiosRequestConfig = url === '/search/movie' ? { params: { query: searchQuery } } : {};
 
         const response = await axiosInstance.get<MovieAPIResponse>(url, params);
-        const filteredData = response.data.results.filter((movie) => movie.vote_average > MIN_AVERAGE);
-        const sortedData = filteredData.sort((a, b) => b.vote_average - a.vote_average);
+        const filteredImg = response.data.results.filter((movie) => movie.backdrop_path || movie.poster_path !== null)
+        const filteredAverage = filteredImg.filter((movie) => movie.vote_average > MIN_AVERAGE);
+        const sortedData = filteredAverage.sort((a, b) => b.vote_average - a.vote_average);
         setSearchResult(sortedData);
       } catch (error) {
         console.error('fetchMovieData Error:', error);
