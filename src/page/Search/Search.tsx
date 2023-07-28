@@ -1,8 +1,8 @@
-import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import MovieList from '../../components/MovieList/MovieList';
+import { useLocation } from 'react-router-dom';
 import { AxiosRequestConfig } from 'axios';
 import { axiosInstance, getEndpoint } from '../../api/movie';
+import MovieList from '../../components/MovieList/MovieList';
 import { Movie } from '../../types/movie';
 import styles from './Search.module.css';
 
@@ -12,14 +12,22 @@ interface MovieAPIResponse {
   total_results: number;
 }
 
+const MIN_AVERAGE = 7;
+
 const Search = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchResult, setSearchResult] = useState<Movie[]>([]);
-
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const query = searchParams.get('q');
-  const MIN_AVERAGE = 7;
+
+  const fetchFilteredData = (data: MovieAPIResponse): Movie[] => {
+    const filteredData = data.results.filter(
+      (movie) => (movie.backdrop_path || movie.poster_path) !== null && movie.vote_average > MIN_AVERAGE
+    );
+    const sortedData = filteredData.sort((a, b) => b.vote_average - a.vote_average);
+    return sortedData;
+  };
 
   useEffect(() => {
     const fetchMovieData = async (searchQuery: string) => {
@@ -27,12 +35,12 @@ const Search = () => {
         setIsLoading(true);
         const url = getEndpoint(location.pathname);
         const params: AxiosRequestConfig = url === '/search/movie' ? { params: { query: searchQuery } } : {};
-
         const response = await axiosInstance.get<MovieAPIResponse>(url, params);
-        const filteredImg = response.data.results.filter((movie) => movie.backdrop_path || movie.poster_path !== null)
-        const filteredAverage = filteredImg.filter((movie) => movie.vote_average > MIN_AVERAGE);
-        const sortedData = filteredAverage.sort((a, b) => b.vote_average - a.vote_average);
+        const sortedData = fetchFilteredData(response.data);
         setSearchResult(sortedData);
+
+        console.log(response.data)
+        console.log('sortedData', sortedData)
       } catch (error) {
         console.error('fetchMovieData Error:', error);
       } finally {
