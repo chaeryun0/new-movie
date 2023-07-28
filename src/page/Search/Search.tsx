@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AxiosRequestConfig } from 'axios';
 import { axiosInstance, getEndpoint } from '../../api/movie';
@@ -17,9 +17,16 @@ const MIN_AVERAGE = 7;
 const Search = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchResult, setSearchResult] = useState<Movie[]>([]);
+
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const query = searchParams.get('q');
+  const query = searchParams.get('q') || '';
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+
+  const observer = useRef<IntersectionObserver | null>(null);
+  const targetRef = useRef<HTMLDivElement | null>(null);
 
   const fetchFilteredData = (data: MovieAPIResponse): Movie[] => {
     const filteredData = data.results.filter(
@@ -29,33 +36,84 @@ const Search = () => {
     return sortedData;
   };
 
-  useEffect(() => {
-    const fetchMovieData = async (searchQuery: string) => {
-      try {
-        setIsLoading(true);
-        const url = getEndpoint(location.pathname);
-        const params: AxiosRequestConfig = url === '/search/movie' ? { params: { query: searchQuery } } : {};
-        const response = await axiosInstance.get<MovieAPIResponse>(url, params);
-        const sortedData = fetchFilteredData(response.data);
-        setSearchResult(sortedData);
 
-        console.log(response.data)
-        console.log('sortedData', sortedData)
-      } catch (error) {
-        console.error('fetchMovieData Error:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  useEffect(() => {
+  const fetchMovieData = async (searchQuery: string) => {
+    try {
+      setIsLoading(true);
+
+      const url = getEndpoint(location.pathname);
+      const params: AxiosRequestConfig = url === '/search/movie' ? { params: { query: searchQuery } } : {};
+      const response = await axiosInstance.get<MovieAPIResponse>(url, params);
+      const sortedData = fetchFilteredData(response.data);
+      
+      setSearchResult(sortedData);
+      console.log(response.data);
+      console.log('sortedData:', sortedData);
+
+    } catch (error) {
+      console.error('fetchMovieData Error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
     if (query) {
       fetchMovieData(query);
     }
-  }, [query, location.pathname]);
+  }, [query, location.pathname]); 
+
+
+  const fetchNextPage = async (page: number) => {
+    try {
+      setIsFetchingNextPage(true);
+
+      const url = getEndpoint(location.pathname);
+      const params: AxiosRequestConfig = url === '/search/movie' ? { params: { query, page } } : {};
+      const response = await axiosInstance.get<MovieAPIResponse>(url, params);
+      const nextPageData = fetchFilteredData(response.data);
+
+      console.log(`page ${page} :`, nextPageData);
+      setSearchResult((prevResults) => [...prevResults, ...nextPageData]);
+      setCurrentPage(page + 1);
+
+    } catch (error) {
+      console.error('fetchNextPage Error:', error);
+    } finally {
+      setIsFetchingNextPage(false);
+    }
+  };
+
+  
+  useEffect(() => {
+    const callback = (entries: IntersectionObserverEntry[]) => {
+      const target = entries[0];
+      // console.log('target:', target)
+      // console.log('observer:', observer)
+
+      if (target.isIntersecting && !isFetchingNextPage) {
+        fetchNextPage(currentPage);
+      }
+    };
+  
+  observer.current = new IntersectionObserver(callback, { threshold: 1 });
+
+  if (targetRef.current) {
+    observer.current.observe(targetRef.current);
+  }
+
+
+    return () => {
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+    };
+  }, [isFetchingNextPage, currentPage]);
 
   return (
     <section className={styles.searchResults}>
       <MovieList isLoading={isLoading} movieData={searchResult} />
+      <div ref={targetRef} style={{ height: '10px', backgroundColor: 'red' }}></div>
     </section>
   );
 };

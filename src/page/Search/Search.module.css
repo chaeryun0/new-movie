@@ -7,6 +7,6 @@
   scrollbar-width: none;   /* Firefox */
 }
 
-.searchResults::-webkit-scrollbar {
+/* .searchResults::-webkit-scrollbar {
   display: none;
-}
+} */
