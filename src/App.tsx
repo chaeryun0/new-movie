@@ -3,7 +3,7 @@ import { Layout } from './page/Layout/Layout';
 import Search from './page/Search/Search';
 import Favorite from './page/Favorite/Favorite';
 import NotFound from './page/NotFound/NotFound';
-import { NO_RESULTS } from './assets/texts';
+import { Msg } from './assets/texts';
 import styles from './App.module.css'
 
 const App = () => {
@@ -12,7 +12,7 @@ const App = () => {
       <Route path='/' element={<Layout />}>
         <Route index element={
           <section>
-            <p className={styles.noResults}>{NO_RESULTS}</p>
+            <p className={styles.noResults}>{Msg.NO_RESULTS}</p>
           </section>}
         />
         <Route path='/search' element={<Search />} />
