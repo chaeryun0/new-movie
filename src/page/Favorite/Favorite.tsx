@@ -1,19 +1,28 @@
+import { useState, useEffect } from 'react';
+import { getFavoriteMovies, setFavoriteMoviesInLocal } from '../../storage/movie';
 import MovieCard from '../../components/MovieCard/MovieCard';
 import { Movie } from '../../types/movie';
 import { Msg } from '../../assets/texts';
 import styles from './Favorite.module.css';
-import { useEffect, useState } from 'react';
 
 const Favorite = () => {
-  const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>(() => {
-    const storedFavorites = localStorage.getItem('favoriteMovies');
-    return storedFavorites ? JSON.parse(storedFavorites) : [];
-  });
+  const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>(getFavoriteMovies());
 
   useEffect(() => {
-    localStorage.setItem('favoriteMovies', JSON.stringify(favoriteMovies));
+    setFavoriteMoviesInLocal(favoriteMovies);
   }, [favoriteMovies]);
 
+    const addToFavorites = (movie: Movie) => {
+      setFavoriteMovies((prevFavorites) => [...prevFavorites, movie]);
+      console.log('addToFavorites:', movie.title);
+  }; 
+
+    const removeFromFavorites = (movie: Movie) => {
+      setFavoriteMovies((prevFavorites) =>
+        prevFavorites.filter((favMovie) => favMovie.id !== movie.id)
+      );
+      console.log('removeFromFavorites:', movie.title);
+  };
 
   const latestAddFavoreites = favoriteMovies.slice().reverse();
 
@@ -32,6 +41,8 @@ const Favorite = () => {
           <MovieCard
             key={`${movie.id}-${index}`}
             movie={movie}
+            addToFavorites={addToFavorites}
+            removeFromFavorites={removeFromFavorites}
             isFavorite={true}
           />
         ))}

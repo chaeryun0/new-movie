@@ -1,15 +1,19 @@
 import { useState } from 'react';
-import { Movie } from '../../types/movie'
-import styles from './MovieCard.module.css'
 import Modal from '../Modal/Modal';
+import { addFavoriteMovie } from '../../storage/movie';
+import { Movie } from '../../types/movie';
+import styles from './MovieCard.module.css';
 
 interface MovieCardProps {
-  movie: Movie
+  movie: Movie;
+  isFavorite: boolean;
+  addToFavorites: (movie: Movie) => void;
+  removeFromFavorites: (movie: Movie) => void;
 }
 
 const IMG_URL = import.meta.env.VITE_IMG_BASE_URL;
 
-const MovieCard = ({ movie }: MovieCardProps) => {
+const MovieCard = ({ movie, isFavorite, removeFromFavorites }: MovieCardProps) => {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const imgSrc = movie.poster_path || movie.backdrop_path;
 
@@ -37,12 +41,15 @@ const MovieCard = ({ movie }: MovieCardProps) => {
       </li>
       {isOpenModal && (
         <Modal
-          onCloseModal={handleCloseModal}
           movie={movie}
+          isFavorite={isFavorite}
+          onCloseModal={handleCloseModal}
+          addToFavorites={addFavoriteMovie}
+          removeFromFavorites={removeFromFavorites}
         />
       )}
     </>
-  )
-}
+  );
+};
 
-export default MovieCard
+export default MovieCard;

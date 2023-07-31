@@ -1,23 +1,46 @@
-import { GrClose } from 'react-icons/gr'
+import { GrClose } from 'react-icons/gr';
+import { addFavoriteMovie } from '../../storage/movie';
 import { Movie } from '../../types/movie';
-import { ADD_FAVORITE_BTN, CNL_FAVORITE_BTN, IS_ADD_FAVORITE } from '../../assets/texts';
+import { Msg } from '../../assets/texts';
 import styles from './Modal.module.css';
 
 interface ModalProps {
-  onCloseModal: () => void;
   movie: Movie;
+  isFavorite: boolean;
+  onCloseModal: () => void;
+  addToFavorites: (movie: Movie) => void;
+  removeFromFavorites: (movie: Movie) => void;
 }
 
-const Modal = ({ onCloseModal }: ModalProps) => {
+const Modal = ({ movie, isFavorite, onCloseModal, removeFromFavorites }: ModalProps) => {
+  const addOrRemoveText = (isFavorite: boolean) => {
+    return isFavorite ? [Msg.IS_REMOVE_FAVORITE, Msg.REMOVE_BTN] : [Msg.IS_ADD_FAVORITE, Msg.ADD_BTN]
+  }
+
+  const [isAddOrRemove, AddOrRemoveBtn] = addOrRemoveText(isFavorite);
+
+  const handleAddOrRemove = () => {
+    if (isFavorite) {
+      console.log('Removing from favorites:', movie.title);
+      removeFromFavorites(movie);
+    } else {
+      console.log('Adding to favorites:', movie.title);
+      addFavoriteMovie(movie);
+    }
+    onCloseModal();
+  };
+
   return (
     <div className={styles.modalOverlay} onClick={onCloseModal}>
       <section className={styles.modalContent}>
         <GrClose className={styles.close} onClick={onCloseModal} />
-        <p>{IS_ADD_FAVORITE}</p>
+        <p>{isAddOrRemove}</p>
         <div className={styles.btnWrap}>
-          <button type='button'>{ADD_FAVORITE_BTN}</button>
+          <button type='button' onClick={handleAddOrRemove}>
+            {AddOrRemoveBtn}
+          </button>
           <button type='button' onClick={onCloseModal}>
-            {CNL_FAVORITE_BTN}
+            {Msg.CNL_BTN}
           </button>
         </div>
       </section>
