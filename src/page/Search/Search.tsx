@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import MovieList from '../../components/MovieList/MovieList';
 import { AxiosRequestConfig } from 'axios';
 import { axiosInstance, getEndpoint } from '../../api/movie';
-import MovieList from '../../components/MovieList/MovieList';
 import { Movie } from '../../types/movie';
 import styles from './Search.module.css';
 
@@ -36,34 +36,6 @@ const Search = () => {
     return sortedData;
   };
 
-
-  useEffect(() => {
-  const fetchMovieData = async (searchQuery: string) => {
-    try {
-      setIsLoading(true);
-
-      const url = getEndpoint(location.pathname);
-      const params: AxiosRequestConfig = url === '/search/movie' ? { params: { query: searchQuery } } : {};
-      const response = await axiosInstance.get<MovieAPIResponse>(url, params);
-      const sortedData = fetchFilteredData(response.data);
-      
-      setSearchResult(sortedData);
-      console.log(response.data);
-      console.log('sortedData:', sortedData);
-
-    } catch (error) {
-      console.error('fetchMovieData Error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-    if (query) {
-      fetchMovieData(query);
-    }
-  }, [query, location.pathname]); 
-
-
   const fetchNextPage = async (page: number) => {
     try {
       setIsFetchingNextPage(true);
@@ -83,7 +55,6 @@ const Search = () => {
       setIsFetchingNextPage(false);
     }
   };
-
   
   useEffect(() => {
     const callback = (entries: IntersectionObserverEntry[]) => {
