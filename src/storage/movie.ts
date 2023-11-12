@@ -1,13 +1,13 @@
-import { Movie } from '../types/movie';
+import { Movie } from "types/movie";
 
-const key = 'favoriteMovies';
+const key = "favoriteMovies";
 
 export const getFavoriteMovies = (): Movie[] => {
   const storedFavorites = localStorage.getItem(key);
   try {
     return storedFavorites ? JSON.parse(storedFavorites) : [];
   } catch (error) {
-    console.error('Error parsing favorite movies from localStorage:', error);
+    console.error("Error parsing favorite movies from localStorage:", error);
     return [];
   }
 };

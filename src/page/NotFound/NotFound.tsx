@@ -1,8 +1,8 @@
-import { Msg } from '../../assets/texts'
-import styles from './NotFound.module.css'
+import { Msg } from "assets/texts";
+import styles from "./NotFound.module.css";
 
 const NotFound = () => {
-  return  <p className={styles.notFound}>{Msg.NOT_FOUND}</p> 
-}
+  return <p className={styles.notFound}>{Msg.NOT_FOUND}</p>;
+};
 
-export default NotFound
+export default NotFound;

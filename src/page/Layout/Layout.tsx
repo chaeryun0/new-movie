@@ -1,7 +1,7 @@
-import { Outlet } from 'react-router-dom';
-import SearchInput from '../../components/SearchInput/SearchInput';
-import Nav from '../../components/Nav/Nav';
-import styles from './Layout.module.css'
+import { Outlet } from "react-router-dom";
+import SearchInput from "components/SearchInput/SearchInput";
+import Nav from "components/Nav/Nav";
+import styles from "./Layout.module.css";
 
 export const Layout = () => {
   return (
