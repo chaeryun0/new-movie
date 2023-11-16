@@ -1,7 +1,10 @@
 import { useLocation } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useRef } from "react";
 import { AxiosRequestConfig } from "axios";
 import { getEndpoint, axiosInstance } from "api/movie";
+import { RootState } from "redux/store";
+import { setFetchingNextPage, setSearchResults, updateSearchQuery } from "../../redux/search/searchAction";
 import MovieList from "components/MovieList/MovieList";
 import { Movie } from "types/movie";
 import styles from "./Search.module.css";
@@ -15,18 +18,15 @@ interface MovieAPIResponse {
 const MIN_AVERAGE = 7;
 
 const Search = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchResult, setSearchResult] = useState<Movie[]>([]);
+  const observer = useRef<IntersectionObserver | null>(null);
+  const targetRef = useRef<HTMLDivElement | null>(null);
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const query = searchParams.get("q") || "";
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
-
-  const observer = useRef<IntersectionObserver | null>(null);
-  const targetRef = useRef<HTMLDivElement | null>(null);
+  const dispatch = useDispatch();
+  const { searchResults, searchQuery, currentPage, isFetchingNextPage } = useSelector((state: RootState) => state.search);
 
   const fetchFilteredData = (data: MovieAPIResponse): Movie[] => {
     const filteredData = data.results.filter((movie) => (movie.backdrop_path || movie.poster_path) !== null && movie.vote_average > MIN_AVERAGE);
@@ -36,35 +36,46 @@ const Search = () => {
 
   const fetchNextPage = async (page: number) => {
     try {
-      setIsFetchingNextPage(true);
+      dispatch(setFetchingNextPage(true));
 
       const url = getEndpoint(location.pathname);
       const params: AxiosRequestConfig = url === "/search/movie" ? { params: { query, page } } : {};
       const response = await axiosInstance.get<MovieAPIResponse>(url, params);
       const nextPageData = fetchFilteredData(response.data);
 
+      // 리덕스에 검색 결과 업데이트
+      dispatch(setSearchResults(nextPageData));
       console.log(`page ${page} :`, nextPageData);
-      setSearchResult((prevResults) => [...prevResults, ...nextPageData]);
-      setCurrentPage(page + 1);
     } catch (error) {
       console.error("fetchNextPage Error:", error);
     } finally {
-      setIsFetchingNextPage(false);
+      dispatch(setFetchingNextPage(false));
     }
   };
 
   useEffect(() => {
+    dispatch(setSearchResults([]));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(updateSearchQuery(query));
+  }, [dispatch, query]);
+
+  useEffect(() => {
+    // 검색어가 변경되면 리덕스에 업데이트
+    if (query !== searchQuery) {
+      dispatch(updateSearchQuery(query));
+    }
+
     const callback = (entries: IntersectionObserverEntry[]) => {
       const target = entries[0];
-      // console.log('target:', target)
-      // console.log('observer:', observer)
 
       if (target.isIntersecting && !isFetchingNextPage) {
         fetchNextPage(currentPage);
       }
     };
 
-    observer.current = new IntersectionObserver(callback, { threshold: 1 });
+    observer.current = new IntersectionObserver(callback, { threshold: 0 });
 
     if (targetRef.current) {
       observer.current.observe(targetRef.current);
@@ -75,11 +86,11 @@ const Search = () => {
         observer.current.disconnect();
       }
     };
-  }, [isFetchingNextPage, currentPage]);
+  }, [isFetchingNextPage, currentPage, dispatch, query, searchQuery]);
 
   return (
     <section className={styles.searchResults}>
-      <MovieList isLoading={isLoading} movieData={searchResult} />
+      <MovieList movieData={searchResults} />
       <div ref={targetRef} style={{ height: "10px", backgroundColor: "red" }}></div>
     </section>
   );

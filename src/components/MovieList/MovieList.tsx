@@ -6,14 +6,13 @@ import styles from "./MovieList.module.css";
 
 interface Props {
   movieData?: Movie[];
-  isLoading?: boolean;
   removeFromFavorites?: (movie: Movie) => void;
 }
 
-const MovieList = ({ movieData, isLoading, removeFromFavorites }: Props) => {
+const MovieList = ({ movieData, removeFromFavorites }: Props) => {
   return (
     <ul className={styles.movieCardList}>
-      {!isLoading && movieData?.length ? (
+      {movieData?.length ? (
         movieData.map((movie, index) => <MovieCard key={`${movie.id}-${index}`} movie={movie} isFavorite={false} addToFavorites={addFavoriteMovie} removeFromFavorites={() => removeFromFavorites} />)
       ) : (
         <p className={styles.noMovie}>{Msg.NO_MOVIE}</p>
