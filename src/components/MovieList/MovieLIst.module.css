@@ -3,13 +3,3 @@
   flex-wrap: wrap;
   justify-content: space-between;
 }
-
-.noMovie {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  
-  color:#ffffff;
-  font-size: 22px;
-}

@@ -7,6 +7,7 @@ import { RootState } from "redux/store";
 import { setFetchingNextPage, setSearchResults, updateSearchQuery } from "../../redux/search/searchAction";
 import MovieList from "components/MovieList/MovieList";
 import { Movie } from "types/movie";
+import { Msg } from "assets/texts";
 import styles from "./Search.module.css";
 
 interface MovieAPIResponse {
@@ -90,7 +91,7 @@ const Search = () => {
 
   return (
     <section className={styles.searchResults}>
-      <MovieList movieData={searchResults} />
+      {searchResults.length ? <MovieList movieData={searchResults} /> : <p className={styles.noMovie}>{Msg.NO_MOVIE}</p>}
       <div ref={targetRef} style={{ height: "10px", backgroundColor: "red" }}></div>
     </section>
   );
