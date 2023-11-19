@@ -12,7 +12,7 @@ interface AddToFavoritesAction {
 
 interface RemoveFromFavoritesAction {
   type: typeof REMOVE_FROM_FAVORITES;
-  payload: Movie;
+  payload: number;
 }
 
 interface SetFavoriteMoviesAction {
@@ -30,9 +30,9 @@ export const addToFavoritesRedux = (movie: Movie): AddToFavoritesAction => ({
   payload: movie,
 });
 
-export const removeFromFavoritesRedux = (movie: Movie): RemoveFromFavoritesAction => ({
+export const removeFromFavoritesRedux = (movieId: number): RemoveFromFavoritesAction => ({
   type: REMOVE_FROM_FAVORITES,
-  payload: movie,
+  payload: movieId,
 });
 
 // 영화의 전체 목록 설정
