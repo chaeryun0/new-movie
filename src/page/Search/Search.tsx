@@ -1,16 +1,17 @@
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AxiosRequestConfig } from "axios";
 import { getEndpoint, axiosInstance } from "api/movie";
 import { RootState } from "redux/store";
-import { setFetchingNextPage, setSearchResults, updateSearchQuery } from "../../redux/search/searchAction";
+import { setSearchResults, updateSearchQuery } from "../../redux/search/searchAction";
 import MovieList from "components/MovieList/MovieList";
 import { Movie } from "types/movie";
 import { Msg } from "assets/texts";
 import styles from "./Search.module.css";
 
 interface MovieAPIResponse {
+  page: number;
   results: Movie[];
   total_pages: number;
   total_results: number;
@@ -19,6 +20,9 @@ interface MovieAPIResponse {
 const MIN_AVERAGE = 7;
 
 const Search = () => {
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const observer = useRef<IntersectionObserver | null>(null);
   const targetRef = useRef<HTMLDivElement | null>(null);
 
@@ -27,7 +31,7 @@ const Search = () => {
   const query = searchParams.get("q") || "";
 
   const dispatch = useDispatch();
-  const { searchResults, searchQuery, currentPage, isFetchingNextPage } = useSelector((state: RootState) => state.search);
+  const { searchResults, searchQuery } = useSelector((state: RootState) => state.search);
 
   const fetchFilteredData = (data: MovieAPIResponse): Movie[] => {
     const filteredData = data.results.filter((movie) => (movie.backdrop_path || movie.poster_path) !== null && movie.vote_average > MIN_AVERAGE);
@@ -35,27 +39,27 @@ const Search = () => {
     return sortedData;
   };
 
-  const fetchNextPage = async (page: number) => {
+  const fetchNextPage = async () => {
     try {
-      dispatch(setFetchingNextPage(true));
+      setIsFetchingNextPage(true);
 
       const url = getEndpoint(location.pathname);
-      const params: AxiosRequestConfig = url === "/search/movie" ? { params: { query, page } } : {};
+      const params: AxiosRequestConfig = url === "/search/movie" ? { params: { query, page: currentPage } } : {};
       const response = await axiosInstance.get<MovieAPIResponse>(url, params);
       const nextPageData = fetchFilteredData(response.data);
 
-      // 리덕스에 검색 결과 업데이트
-      dispatch(setSearchResults(nextPageData));
-      console.log(`page ${page} :`, nextPageData);
+      dispatch(setSearchResults(currentPage, nextPageData));
+      setCurrentPage((prevPage) => prevPage + 1);
+      // console.log(`page ${currentPage} :`, nextPageData);
     } catch (error) {
       console.error("fetchNextPage Error:", error);
     } finally {
-      dispatch(setFetchingNextPage(false));
+      setIsFetchingNextPage(false);
     }
   };
 
   useEffect(() => {
-    dispatch(setSearchResults([]));
+    dispatch(setSearchResults(1, []));
   }, [dispatch]);
 
   useEffect(() => {
@@ -63,7 +67,6 @@ const Search = () => {
   }, [dispatch, query]);
 
   useEffect(() => {
-    // 검색어가 변경되면 리덕스에 업데이트
     if (query !== searchQuery) {
       dispatch(updateSearchQuery(query));
     }
@@ -72,7 +75,7 @@ const Search = () => {
       const target = entries[0];
 
       if (target.isIntersecting && !isFetchingNextPage) {
-        fetchNextPage(currentPage);
+        fetchNextPage();
       }
     };
 
@@ -87,11 +90,11 @@ const Search = () => {
         observer.current.disconnect();
       }
     };
-  }, [isFetchingNextPage, currentPage, dispatch, query, searchQuery]);
+  }, [isFetchingNextPage, dispatch, query, searchQuery]);
 
   return (
     <section className={styles.searchResults}>
-      {searchResults.length ? <MovieList movieData={searchResults} /> : <p className={styles.noMovie}>{Msg.NO_MOVIE}</p>}
+      {Object.values(searchResults).flat().length ? <MovieList movieData={Object.values(searchResults).flat()} /> : <p className={styles.noMovie}>{Msg.NO_MOVIE}</p>}
       <div ref={targetRef} style={{ height: "10px", backgroundColor: "red" }}></div>
     </section>
   );
