@@ -18,10 +18,9 @@ const favoriteMoviesReducer = (state = initialState, action: FavoriteMoviesActio
       };
 
     case REMOVE_FROM_FAVORITES:
-      console.log("Removing from favorites:", action.payload.title);
       return {
         ...state,
-        movies: state.movies.filter((movie) => movie.id !== action.payload.id),
+        movies: state.movies.filter((movie) => movie.id !== action.payload),
       };
 
     case SET_FAVORITE_MOVIES:
