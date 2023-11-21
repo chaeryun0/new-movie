@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AxiosRequestConfig } from "axios";
 import { getEndpoint, axiosInstance } from "api/movie";
 import { RootState } from "redux/store";
-import { setSearchResults, updateSearchQuery } from "../../redux/search/searchAction";
+import { setSearchResults, updateSearchQuery } from "../../redux/search/searchSlice";
 import MovieList from "components/MovieList/MovieList";
 import { Movie } from "types/movie";
 import { Msg } from "assets/texts";
@@ -48,7 +48,7 @@ const Search = () => {
       const response = await axiosInstance.get<MovieAPIResponse>(url, params);
       const nextPageData = fetchFilteredData(response.data);
 
-      dispatch(setSearchResults(currentPage, nextPageData));
+      dispatch(setSearchResults({ page: currentPage, results: nextPageData }));
       setCurrentPage((prevPage) => prevPage + 1);
       // console.log(`page ${currentPage} :`, nextPageData);
     } catch (error) {
@@ -59,7 +59,7 @@ const Search = () => {
   };
 
   useEffect(() => {
-    dispatch(setSearchResults(1, []));
+    dispatch(setSearchResults({ page: 1, results: [] }));
   }, [dispatch]);
 
   useEffect(() => {
