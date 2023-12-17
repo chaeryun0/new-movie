@@ -95,7 +95,7 @@ const Search = () => {
   return (
     <section className={styles.searchResults}>
       {Object.values(searchResults).flat().length ? <MovieList movieData={Object.values(searchResults).flat()} /> : <p className={styles.noMovie}>{Msg.NO_MOVIE}</p>}
-      <div ref={targetRef} style={{ height: "10px", backgroundColor: "red" }}></div>
+      <div ref={targetRef}></div>
     </section>
   );
 };
