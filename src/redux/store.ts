@@ -1,15 +1,17 @@
-import { applyMiddleware, combineReducers, createStore } from "redux";
-import favoriteMoviesReducer from "./favorite/favoriteMoviesReducer";
-import searchReducer from "./search/searchReducer";
+import { configureStore } from "@reduxjs/toolkit";
 import logger from "redux-logger";
+import favoriteMoviesSlice from "./favorite/favoriteMoviesSlice";
+import searchSlice from "./search/searchSlice";
 
-const rootReducer = combineReducers({
-  favoriteMovies: favoriteMoviesReducer,
-  search: searchReducer,
+const store = configureStore({
+  reducer: {
+    favoriteMovies: favoriteMoviesSlice,
+    search: searchSlice,
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 });
 
-const store = createStore(rootReducer, applyMiddleware(logger));
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
 export default store;
-
-export type RootState = ReturnType<typeof store.getState>;
